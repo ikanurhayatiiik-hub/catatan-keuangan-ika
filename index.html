@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catatan Keuangan Ika</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#A3B18A">
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+<style>
+body {
+    font-family: sans-serif;
+    background: #F5F3ED;
+    margin: 0;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: #5F7161;
+}
+
+.card {
+    background: #D8E2DC;
+    padding: 15px;
+    border-radius: 15px;
+    margin-bottom: 15px;
+}
+
+input, select, button {
+    padding: 8px;
+    margin: 5px 0;
+    width: 100%;
+    border-radius: 8px;
+    border: none;
+}
+
+button {
+    background: #5F7161;
+    color: white;
+    font-weight: bold;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+th, td {
+    padding: 8px;
+    border-bottom: 1px solid #ccc;
+    text-align: left;
+}
+</style>
+</head>
+<body>
+
+<h1>🌿 Catatan Keuangan Ika</h1>
+
+<div class="card">
+<h3>Tambah Transaksi</h3>
+<select id="tipe">
+<option value="Masuk">Pemasukan</option>
+<option value="Keluar">Pengeluaran</option>
+</select>
+
+<input type="text" id="kategori" placeholder="Kategori">
+<input type="text" id="dompet" placeholder="Dompet">
+<input type="number" id="nominal" placeholder="Nominal">
+<input type="text" id="catatan" placeholder="Catatan">
+
+<button onclick="tambahTransaksi()">Simpan</button>
+</div>
+
+<div class="card">
+<h3>Saldo</h3>
+<p>Total Saldo: <b id="saldo">0</b></p>
+</div>
+
+<div class="card">
+<h3>Daftar Transaksi</h3>
+<table>
+<thead>
+<tr>
+<th>Tanggal</th>
+<th>Tipe</th>
+<th>Kategori</th>
+<th>Dompet</th>
+<th>Nominal</th>
+</tr>
+</thead>
+<tbody id="tabelTransaksi"></tbody>
+</table>
+
+<button onclick="exportExcel()">Export Excel</button>
+</div>
+
+<script>
+let transaksi = JSON.parse(localStorage.getItem("transaksi")) || [];
+
+function simpanData() {
+    localStorage.setItem("transaksi", JSON.stringify(transaksi));
+}
+
+function tambahTransaksi() {
+    let tipe = document.getElementById("tipe").value;
+    let kategori = document.getElementById("kategori").value;
+    let dompet = document.getElementById("dompet").value;
+    let nominal = parseInt(document.getElementById("nominal").value);
+    let catatan = document.getElementById("catatan").value;
+
+    let data = {
+        tanggal: new Date().toLocaleDateString(),
+        tipe,
+        kategori,
+        dompet,
+        nominal,
+        catatan
+    };
+
+    transaksi.push(data);
+    simpanData();
+    tampilkan();
+}
+
+function tampilkan() {
+    let tbody = document.getElementById("tabelTransaksi");
+    tbody.innerHTML = "";
+    let saldo = 0;
+
+    transaksi.forEach(t => {
+        if (t.tipe === "Masuk") saldo += t.nominal;
+        else saldo -= t.nominal;
+
+        tbody.innerHTML += `
+            <tr>
+                <td>${t.tanggal}</td>
+                <td>${t.tipe}</td>
+                <td>${t.kategori}</td>
+                <td>${t.dompet}</td>
+                <td>${t.nominal}</td>
+            </tr>
+        `;
+    });
+
+    document.getElementById("saldo").innerText = saldo;
+}
+
+function exportExcel() {
+    let ws = XLSX.utils.json_to_sheet(transaksi);
+    let wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Transaksi");
+    XLSX.writeFile(wb, "Catatan_Keuangan_Ika.xlsx");
+}
+
+tampilkan();
+</script>
+
+</body>
+</html>
