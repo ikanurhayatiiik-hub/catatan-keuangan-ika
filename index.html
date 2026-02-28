@@ -3,176 +3,291 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Keuangan Harian</title>
+<title>Catatan Keuangan Ika 3.2 Ultimate</title>
 
+<!-- Tema Pink Pastel + Mode Gelap Otomatis -->
 <style>
-body {
-    font-family: Arial, sans-serif;
-    margin: 20px;
-    background: #FDE2E4; /* pink pastel background */
-}
+:root {
+  --bg-light: #FDE2E4;
+  --card-light: #FFF5F7;
+  --primary-light: #F8BBD0;
+  --text-light: #880E4F;
 
-h2 {
-    text-align: center;
-    color: #C2185B;
+  --bg-dark: #2C2C2C;
+  --card-dark: #3C3C3C;
+  --primary-dark: #FF80AB;
+  --text-dark: #FFD1E0;
 }
-
-.card {
-    background: #FFF5F7;
-    padding: 15px;
-    margin-bottom: 15px;
-    border-radius: 15px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-}
-
-input, select, button {
-    width: 100%;
-    padding: 10px;
-    margin-top: 8px;
-    margin-bottom: 8px;
-    border-radius: 8px;
-    border: 1px solid #F8BBD0;
-}
-
-button {
-    background: #F8BBD0;
-    color: #880E4F;
-    border: none;
-    font-weight: bold;
-}
-
-button:hover {
-    background: #F48FB1;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-th, td {
-    border: 1px solid #F8BBD0;
-    padding: 8px;
-    text-align: center;
-}
-
-th {
-    background: #F8BBD0;
-    color: #880E4F;
-}
+body { font-family: Arial,sans-serif; margin:20px; background:var(--bg-light); color:var(--text-light);}
+body.dark { background:var(--bg-dark); color:var(--text-dark);}
+h2{text-align:center;}
+.card{background:var(--card-light);padding:15px;margin-bottom:15px;border-radius:15px;box-shadow:0 4px 10px rgba(0,0,0,0.05);}
+body.dark .card{background:var(--card-dark);}
+input,select,button{width:100%;padding:10px;margin-top:8px;margin-bottom:8px;border-radius:8px;border:1px solid var(--primary-light);}
+body.dark input,body.dark select,body.dark button{border-color:var(--primary-dark);}
+button{background:var(--primary-light); color:var(--text-light); border:none;font-weight:bold;}
+body.dark button{background:var(--primary-dark); color:var(--text-dark);}
+button:hover{opacity:0.9;}
+table{width:100%;border-collapse:collapse;}
+th,td{border:1px solid var(--primary-light);padding:8px;text-align:center;}
+body.dark th,body.dark td{border-color:var(--primary-dark);}
+th{background:var(--primary-light);}
+body.dark th{background:var(--primary-dark);}
+.warning{color:red;font-weight:bold;}
+canvas{max-width:100%;margin-top:10px;}
+.search-input{margin-bottom:10px;}
 </style>
 </head>
-
 <body>
 
-<h2>💖 Keuangan Harian Ika</h2>
+<h2>💖 Catatan Keuangan Ika 3.2 Ultimate</h2>
 
+<!-- Mode Gelap Otomatis -->
+<script>
+if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches){document.body.classList.add('dark');}
+</script>
+
+<!-- Filter & Search -->
+<div class="card">
+<h3>Filter & Cari Transaksi</h3>
+<input type="date" id="filterTanggal">
+<select id="filterKategori">
+<option value="">Semua Kategori</option>
+<option>Foods and drinks</option>
+<option>Infaq dan sodaqoh</option>
+<option>Family</option>
+<option>Listrik</option>
+<option>Pulsa dan platform</option>
+<option>Pajak</option>
+<option>Kesehatan</option>
+<option>Pakaian dan aksesoris</option>
+<option>Kecantikan</option>
+<option>Ilmu</option>
+<option>Hiburan</option>
+<option>Transportasi</option>
+<option>Admin</option>
+<option>Lain-lain</option>
+<option>Gaji</option>
+<option>Tunjangan</option>
+<option>Lainnya</option>
+</select>
+<select id="filterDompet">
+<option value="">Semua Dompet</option>
+<option>Cash</option>
+<option>Mandiri</option>
+<option>BNI</option>
+<option>Jago Syariah</option>
+<option>Maybank Syariah</option>
+<option>Dana</option>
+<option>Flip</option>
+<option>Shopeepay</option>
+<option>Gopay</option>
+<option>E money</option>
+<option>Ovo</option>
+<option>Lainnya</option>
+</select>
+<input type="text" id="searchTransaksi" class="search-input" placeholder="Cari transaksi...">
+<button onclick="tampilData()">Terapkan Filter / Cari</button>
+</div>
+
+<!-- Tambah Transaksi -->
 <div class="card">
 <h3>Tambah Transaksi</h3>
-
 <input type="date" id="tanggal">
-
 <select id="tipe">
 <option value="Masuk">Pemasukan</option>
 <option value="Keluar">Pengeluaran</option>
 </select>
-
-<input type="text" id="kategori" placeholder="Kategori">
+<select id="kategoriTambah">
+<optgroup label="Pengeluaran">
+<option>Foods and drinks</option>
+<option>Infaq dan sodaqoh</option>
+<option>Family</option>
+<option>Listrik</option>
+<option>Pulsa dan platform</option>
+<option>Pajak</option>
+<option>Kesehatan</option>
+<option>Pakaian dan aksesoris</option>
+<option>Kecantikan</option>
+<option>Ilmu</option>
+<option>Hiburan</option>
+<option>Transportasi</option>
+<option>Admin</option>
+<option>Lain-lain</option>
+</optgroup>
+<optgroup label="Pemasukan">
+<option>Gaji</option>
+<option>Tunjangan</option>
+<option>Lainnya</option>
+</optgroup>
+</select>
+<select id="dompetTambah">
+<option>Cash</option>
+<option>Mandiri</option>
+<option>BNI</option>
+<option>Jago Syariah</option>
+<option>Maybank Syariah</option>
+<option>Dana</option>
+<option>Flip</option>
+<option>Shopeepay</option>
+<option>Gopay</option>
+<option>E money</option>
+<option>Ovo</option>
+<option>Lainnya</option>
+</select>
 <input type="number" id="jumlah" placeholder="Jumlah">
 <input type="text" id="keterangan" placeholder="Keterangan">
-
 <button onclick="tambahData()">Simpan</button>
 </div>
 
+<!-- Ringkasan -->
 <div class="card">
 <h3>Ringkasan</h3>
 <p>Total Pemasukan: Rp <span id="totalMasuk">0</span></p>
 <p>Total Pengeluaran: Rp <span id="totalKeluar">0</span></p>
 <p><b>Saldo: Rp <span id="saldo">0</span></b></p>
+<p class="warning" id="warningLimit"></p>
+<button onclick="exportExcel()">Export Excel</button>
+<button onclick="exportPDF()">Export PDF</button>
+<button onclick="backupData()">Backup ke Cloud</button>
 </div>
 
+<!-- Hutang / Piutang -->
 <div class="card">
-<h3>Data Transaksi</h3>
+<h3>Hutang / Piutang</h3>
+<input type="text" id="namaHutang" placeholder="Nama orang">
+<select id="statusHutang">
+<option value="Hutang">Hutang</option>
+<option value="Piutang">Piutang</option>
+</select>
+<input type="number" id="jumlahHutang" placeholder="Jumlah">
+<button onclick="tambahHutang()">Simpan Hutang/Piutang</button>
+
 <table>
-<thead>
-<tr>
-<th>Tanggal</th>
-<th>Tipe</th>
-<th>Kategori</th>
-<th>Jumlah</th>
-<th>Keterangan</th>
-</tr>
-</thead>
-<tbody id="tabelData"></tbody>
+<thead><tr><th>Nama</th><th>Status</th><th>Jumlah</th><th>Sisa</th><th>Aksi</th></tr></thead>
+<tbody id="tabelHutang"></tbody>
 </table>
 </div>
 
+<!-- Data Transaksi -->
+<div class="card">
+<h3>Data Transaksi</h3>
+<table>
+<thead><tr><th>Tanggal</th><th>Tipe</th><th>Kategori</th><th>Dompet</th><th>Jumlah</th><th>Keterangan</th><th>Aksi</th></tr></thead>
+<tbody id="tabelData"></tbody>
+</table>
+<canvas id="grafikPie"></canvas>
+<canvas id="grafikLine"></canvas>
+<canvas id="grafikBulanan"></canvas>
+</div>
+
+<!-- Script -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <script>
-let transaksi = JSON.parse(localStorage.getItem("transaksi")) || [];
+// === Data ===
+let transaksi=JSON.parse(localStorage.getItem("transaksi"))||[];
+let hutangPiutang=JSON.parse(localStorage.getItem("hutangPiutang"))||[];
+let limitKategori={"Foods and drinks":1000000,"Listrik":500000,"Hiburan":300000};
 
-function tambahData() {
-    let tanggalInput = document.getElementById("tanggal").value;
-    let tipe = document.getElementById("tipe").value;
-    let kategori = document.getElementById("kategori").value;
-    let jumlah = document.getElementById("jumlah").value;
-    let keterangan = document.getElementById("keterangan").value;
-
-    if (!jumlah) {
-        alert("Jumlah harus diisi!");
-        return;
-    }
-
-    let data = {
-        tanggal: tanggalInput || new Date().toLocaleDateString(),
-        tipe: tipe,
-        kategori: kategori,
-        jumlah: parseInt(jumlah),
-        keterangan: keterangan
-    };
-
-    transaksi.push(data);
-    localStorage.setItem("transaksi", JSON.stringify(transaksi));
-
-    document.getElementById("kategori").value = "";
-    document.getElementById("jumlah").value = "";
-    document.getElementById("keterangan").value = "";
-
-    tampilData();
-}
-
-function tampilData() {
-    let tabel = document.getElementById("tabelData");
-    tabel.innerHTML = "";
-
-    let totalMasuk = 0;
-    let totalKeluar = 0;
-
-    transaksi.forEach(item => {
-        let row = `
-        <tr>
-        <td>${item.tanggal}</td>
-        <td>${item.tipe}</td>
-        <td>${item.kategori}</td>
-        <td>Rp ${item.jumlah.toLocaleString()}</td>
-        <td>${item.keterangan}</td>
-        </tr>
-        `;
-        tabel.innerHTML += row;
-
-        if (item.tipe === "Masuk") {
-            totalMasuk += item.jumlah;
-        } else {
-            totalKeluar += item.jumlah;
-        }
-    });
-
-    document.getElementById("totalMasuk").innerText = totalMasuk.toLocaleString();
-    document.getElementById("totalKeluar").innerText = totalKeluar.toLocaleString();
-    document.getElementById("saldo").innerText = (totalMasuk - totalKeluar).toLocaleString();
-}
-
+// === Tambah Transaksi ===
+function tambahData(){
+let tgl=document.getElementById("tanggal").value;
+let tipe=document.getElementById("tipe").value;
+let kategori=document.getElementById("kategoriTambah").value;
+let dompet=document.getElementById("dompetTambah").value;
+let jumlah=document.getElementById("jumlah").value;
+let ket=document.getElementById("keterangan").value;
+if(!jumlah){alert("Jumlah harus diisi!");return;}
+let data={tanggal:tgl||new Date().toLocaleDateString(),tipe:tipe,kategori:kategori,dompet:dompet,jumlah:parseInt(jumlah),keterangan:ket};
+transaksi.push(data);
+localStorage.setItem("transaksi",JSON.stringify(transaksi));
+document.getElementById("jumlah").value="";
+document.getElementById("keterangan").value="";
 tampilData();
-</script>
+}
 
+// === Tambah Hutang/Piutang ===
+function tambahHutang(){
+let nama=document.getElementById("namaHutang").value;
+let status=document.getElementById("statusHutang").value;
+let jumlah=document.getElementById("jumlahHutang").value;
+if(!nama||!jumlah){alert("Nama dan jumlah harus diisi!");return;}
+let data={nama,status,jumlah:parseInt(jumlah),sisa:parseInt(jumlah)};
+hutangPiutang.push(data);
+localStorage.setItem("hutangPiutang",JSON.stringify(hutangPiutang));
+document.getElementById("namaHutang").value="";
+document.getElementById("jumlahHutang").value="";
+tampilHutang();
+}
+
+// === Edit / Hapus ===
+function editData(i){let d=transaksi[i];document.getElementById("tanggal").value=d.tanggal;document.getElementById("tipe").value=d.tipe;document.getElementById("kategoriTambah").value=d.kategori;document.getElementById("dompetTambah").value=d.dompet;document.getElementById("jumlah").value=d.jumlah;document.getElementById("keterangan").value=d.keterangan;transaksi.splice(i,1);localStorage.setItem("transaksi",JSON.stringify(transaksi));tampilData();}
+function hapusData(i){if(confirm("Yakin hapus transaksi?")){transaksi.splice(i,1);localStorage.setItem("transaksi",JSON.stringify(transaksi));tampilData();}}
+function hapusHutang(i){if(confirm("Yakin hapus hutang/piutang?")){hutangPiutang.splice(i,1);localStorage.setItem("hutangPiutang",JSON.stringify(hutangPiutang));tampilHutang();}}
+
+// === Tampil Data ===
+function tampilData(){
+let tabel=document.getElementById("tabelData");tabel.innerHTML="";
+let totalMasuk=0,totalKeluar=0,kategoriJumlah={};
+let filterT=document.getElementById("filterTanggal").value;
+let filterK=document.getElementById("filterKategori").value;
+let filterD=document.getElementById("filterDompet").value;
+let search=document.getElementById("searchTransaksi").value.toLowerCase();
+transaksi.forEach((t,i)=>{
+if((!filterT||t.tanggal===filterT)&&(!filterK||t.kategori===filterK)&&(!filterD||t.dompet===filterD)&&(!search||t.keterangan.toLowerCase().includes(search)||t.kategori.toLowerCase().includes(search)||t.dompet.toLowerCase().includes(search))){
+let row=`<tr><td>${t.tanggal}</td><td>${t.tipe}</td><td>${t.kategori}</td><td>${t.dompet}</td><td>Rp ${t.jumlah.toLocaleString()}</td><td>${t.keterangan}</td><td><button onclick="editData(${i})">Edit</button><button onclick="hapusData(${i})">Hapus</button></td></tr>`;
+tabel.innerHTML+=row;if(t.tipe==="Masuk") totalMasuk+=t.jumlah; else totalKeluar+=t.jumlah;
+if(!kategoriJumlah[t.kategori]) kategoriJumlah[t.kategori]=0;if(t.tipe==="Keluar") kategoriJumlah[t.kategori]+=t.jumlah;}
+});
+document.getElementById("totalMasuk").innerText=totalMasuk.toLocaleString();
+document.getElementById("totalKeluar").innerText=totalKeluar.toLocaleString();
+document.getElementById("saldo").innerText=(totalMasuk-totalKeluar).toLocaleString();
+let warning=document.getElementById("warningLimit");let overLimit=false;for(let k in kategoriJumlah){if(limitKategori[k]&&kategoriJumlah[k]>limitKategori[k]){overLimit=true;break;}}
+warning.innerText=totalKeluar>totalMasuk?"⚠️ Pengeluaran lebih besar dari pemasukan!":(overLimit?"⚠️ Beberapa kategori melebihi limit!":"");
+tampilGrafik(kategoriJumlah);
+tampilGrafikBulanan();
+}
+
+// === Tampil Hutang/Piutang ===
+function tampilHutang(){let tabel=document.getElementById("tabelHutang");tabel.innerHTML="";hutangPiutang.forEach((h,i)=>{let row=`<tr><td>${h.nama}</td><td>${h.status}</td><td>Rp ${h.jumlah.toLocaleString()}</td><td>Rp ${h.sisa.toLocaleString()}</td><td><button onclick="hapusHutang(${i})">Hapus</button></td></tr>`;tabel.innerHTML+=row;});}
+
+// === Export Excel / PDF ===
+function exportExcel(){let wb=XLSX.utils.book_new();let wsData=[["Tanggal","Tipe","Kategori","Dompet","Jumlah","Keterangan"]];transaksi.forEach(t=>{wsData.push([t.tanggal,t.tipe,t.kategori,t.dompet,t.jumlah,t.keterangan]);});let ws=XLSX.utils.aoa_to_sheet(wsData);XLSX.utils.book_append_sheet(wb,ws,"Transaksi");XLSX.writeFile(wb,"Catatan_Keuangan.xlsx");}
+function exportPDF(){const { jsPDF } = window.jspdf;let doc=new jsPDF();doc.setFontSize(12);doc.text("Catatan Keuangan Ika",10,10);let startY=20;transaksi.forEach((t,i)=>{doc.text(`${t.tanggal} | ${t.tipe} | ${t.kategori} | ${t.dompet} | Rp ${t.jumlah.toLocaleString()} | ${t.keterangan}`,10,startY+i*10);});doc.save("Catatan_Keuangan.pdf");}
+
+// === Backup Otomatis (simulasi localStorage / cloud) ===
+function backupData(){alert("Data berhasil di-backup ke cloud (simulasi)!");}
+
+// === Grafik ===
+function tampilGrafik(kategoriJumlah){
+let ctxPie=document.getElementById("grafikPie").getContext("2d");
+let ctxLine=document.getElementById("grafikLine").getContext("2d");
+if(window.grafikPie) window.grafikPie.destroy();
+if(window.grafikLine) window.grafikLine.destroy();
+window.grafikPie=new Chart(ctxPie,{type:"pie",data:{labels:Object.keys(kategoriJumlah),datasets:[{data:Object.values(kategoriJumlah),backgroundColor:Object.keys(kategoriJumlah).map(()=>"#F48FB1")}]},options:{responsive:true}});
+window.grafikLine=new Chart(ctxLine,{type:"line",data:{labels:Object.keys(kategoriJumlah),datasets:[{label:"Pengeluaran per Kategori",data:Object.values(kategoriJumlah),borderColor:"#F48FB1",fill:false}]},options:{responsive:true}});
+}
+
+// === Grafik Bulanan / Cashflow Visual ===
+function tampilGrafikBulanan(){
+let ctx=document.getElementById("grafikBulanan").getContext("2d");
+let bulanJumlah={};
+transaksi.forEach(t=>{
+let bulan=t.tanggal.split("-")[1]||("0"+(new Date().getMonth()+1));
+if(!bulanJumlah[bulan]) bulanJumlah[bulan]=0;if(t.tipe==="Keluar") bulanJumlah[bulan]+=t.jumlah;
+});
+if(window.grafikBulanan) window.grafikBulanan.destroy();
+window.grafikBulanan=new Chart(ctx,{type:"bar",data:{labels:Object.keys(bulanJumlah),datasets:[{label:"Pengeluaran Bulanan",data:Object.values(bulanJumlah),backgroundColor:"#F48FB1"}]},options:{responsive:true}});
+}
+
+// === Service Worker ===
+if("serviceWorker" in navigator){navigator.serviceWorker.register("service-worker.js");}
+
+// === Init ===
+tampilData();tampilHutang();
+</script>
 </body>
 </html>
