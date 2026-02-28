@@ -1,166 +1,163 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Catatan Keuangan Ika</title>
-
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#A3B18A">
-
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<title>Keuangan Harian</title>
 
 <style>
 body {
-    font-family: sans-serif;
-    background: #F5F3ED;
-    margin: 0;
-    padding: 20px;
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background: #f5f5f5;
 }
-
-h1 {
+h2 {
     text-align: center;
-    color: #5F7161;
 }
-
 .card {
-    background: #D8E2DC;
+    background: white;
     padding: 15px;
-    border-radius: 15px;
     margin-bottom: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
-
 input, select, button {
-    padding: 8px;
-    margin: 5px 0;
     width: 100%;
-    border-radius: 8px;
-    border: none;
+    padding: 8px;
+    margin-top: 8px;
+    margin-bottom: 8px;
 }
-
 button {
-    background: #5F7161;
+    background: #4CAF50;
     color: white;
-    font-weight: bold;
+    border: none;
+    border-radius: 5px;
 }
-
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 10px;
 }
-
 th, td {
+    border: 1px solid #ddd;
     padding: 8px;
-    border-bottom: 1px solid #ccc;
-    text-align: left;
+    text-align: center;
+}
+th {
+    background: #4CAF50;
+    color: white;
 }
 </style>
 </head>
+
 <body>
 
-<h1>🌿 Catatan Keuangan Ika</h1>
+<h2>💰 Keuangan Harian</h2>
 
 <div class="card">
 <h3>Tambah Transaksi</h3>
+
+<input type="date" id="tanggal">
+
 <select id="tipe">
 <option value="Masuk">Pemasukan</option>
 <option value="Keluar">Pengeluaran</option>
 </select>
 
 <input type="text" id="kategori" placeholder="Kategori">
-<input type="text" id="dompet" placeholder="Dompet">
-<input type="number" id="nominal" placeholder="Nominal">
-<input type="text" id="catatan" placeholder="Catatan">
+<input type="number" id="jumlah" placeholder="Jumlah">
+<input type="text" id="keterangan" placeholder="Keterangan">
 
-<button onclick="tambahTransaksi()">Simpan</button>
+<button onclick="tambahData()">Simpan</button>
 </div>
 
 <div class="card">
-<h3>Saldo</h3>
-<p>Total Saldo: <b id="saldo">0</b></p>
+<h3>Ringkasan</h3>
+<p>Total Pemasukan: Rp <span id="totalMasuk">0</span></p>
+<p>Total Pengeluaran: Rp <span id="totalKeluar">0</span></p>
+<p><b>Saldo: Rp <span id="saldo">0</span></b></p>
 </div>
 
 <div class="card">
-<h3>Daftar Transaksi</h3>
+<h3>Data Transaksi</h3>
 <table>
 <thead>
 <tr>
 <th>Tanggal</th>
 <th>Tipe</th>
 <th>Kategori</th>
-<th>Dompet</th>
-<th>Nominal</th>
+<th>Jumlah</th>
+<th>Keterangan</th>
 </tr>
 </thead>
-<tbody id="tabelTransaksi"></tbody>
+<tbody id="tabelData"></tbody>
 </table>
-
-<button onclick="exportExcel()">Export Excel</button>
 </div>
 
 <script>
 let transaksi = JSON.parse(localStorage.getItem("transaksi")) || [];
 
-function simpanData() {
-    localStorage.setItem("transaksi", JSON.stringify(transaksi));
-}
-
-function tambahTransaksi() {
+function tambahData() {
+    let tanggalInput = document.getElementById("tanggal").value;
     let tipe = document.getElementById("tipe").value;
     let kategori = document.getElementById("kategori").value;
-    let dompet = document.getElementById("dompet").value;
-    let nominal = parseInt(document.getElementById("nominal").value);
-    let catatan = document.getElementById("catatan").value;
+    let jumlah = document.getElementById("jumlah").value;
+    let keterangan = document.getElementById("keterangan").value;
+
+    if (!jumlah) {
+        alert("Jumlah harus diisi!");
+        return;
+    }
 
     let data = {
-        tanggal: new Date().toLocaleDateString(),
-        tipe,
-        kategori,
-        dompet,
-        nominal,
-        catatan
+        tanggal: tanggalInput || new Date().toLocaleDateString(),
+        tipe: tipe,
+        kategori: kategori,
+        jumlah: parseInt(jumlah),
+        keterangan: keterangan
     };
 
     transaksi.push(data);
-    simpanData();
-    tampilkan();
+    localStorage.setItem("transaksi", JSON.stringify(transaksi));
+
+    document.getElementById("kategori").value = "";
+    document.getElementById("jumlah").value = "";
+    document.getElementById("keterangan").value = "";
+
+    tampilData();
 }
 
-function tampilkan() {
-    let tbody = document.getElementById("tabelTransaksi");
-    tbody.innerHTML = "";
-    let saldo = 0;
+function tampilData() {
+    let tabel = document.getElementById("tabelData");
+    tabel.innerHTML = "";
 
-    transaksi.forEach(t => {
-        if (t.tipe === "Masuk") saldo += t.nominal;
-        else saldo -= t.nominal;
+    let totalMasuk = 0;
+    let totalKeluar = 0;
 
-        tbody.innerHTML += `
-            <tr>
-                <td>${t.tanggal}</td>
-                <td>${t.tipe}</td>
-                <td>${t.kategori}</td>
-                <td>${t.dompet}</td>
-                <td>${t.nominal}</td>
-            </tr>
+    transaksi.forEach(item => {
+        let row = `
+        <tr>
+        <td>${item.tanggal}</td>
+        <td>${item.tipe}</td>
+        <td>${item.kategori}</td>
+        <td>Rp ${item.jumlah.toLocaleString()}</td>
+        <td>${item.keterangan}</td>
+        </tr>
         `;
+        tabel.innerHTML += row;
+
+        if (item.tipe === "Masuk") {
+            totalMasuk += item.jumlah;
+        } else {
+            totalKeluar += item.jumlah;
+        }
     });
 
-    document.getElementById("saldo").innerText = saldo;
+    document.getElementById("totalMasuk").innerText = totalMasuk.toLocaleString();
+    document.getElementById("totalKeluar").innerText = totalKeluar.toLocaleString();
+    document.getElementById("saldo").innerText = (totalMasuk - totalKeluar).toLocaleString();
 }
 
-function exportExcel() {
-    let ws = XLSX.utils.json_to_sheet(transaksi);
-    let wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Transaksi");
-    XLSX.writeFile(wb, "Catatan_Keuangan_Ika.xlsx");
-}
-
-tampilkan();
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("service-worker.js");
-}
+tampilData();
 </script>
 
 </body>
